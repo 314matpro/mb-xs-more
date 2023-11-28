@@ -1,0 +1,14 @@
+MI.10
+:!
+	(= bar..mb.dev.java:0.0.0~ =)
+	(= bar..mb.dev.policy.global:0.0.0~ =)
+	::
+		id == mb.xs.more
+		description == MasterBuild eXtreme Share - MORE
+		version == 0.0.0~
+
+		imports ::
+			mb.xs.core:jar == 0.0.0~
+		;;
+	;;
+!;
