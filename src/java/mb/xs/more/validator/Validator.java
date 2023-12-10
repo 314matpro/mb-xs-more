@@ -1,5 +1,7 @@
 package mb.xs.more.validator;
 
+import java.util.function.Predicate;
+
 import mb.xs.core.model.Model;
 
 public interface Validator<T> {
@@ -10,4 +12,5 @@ public interface Validator<T> {
 	public Validator<T> isNull() throws ValidationException;
 	public Validator<T> isEqual( T other ) throws ValidationException;
 	public Validator<T> isNotEqual( T other ) throws ValidationException;
+	public Validator<T> is( Predicate<T> condition ) throws ValidationException;
 }

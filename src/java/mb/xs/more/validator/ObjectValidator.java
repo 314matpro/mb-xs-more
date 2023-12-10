@@ -1,7 +1,7 @@
 package mb.xs.more.validator;
 
 import java.util.Collection;
-import java.util.function.Function;
+import java.util.function.*;
 
 import mb.xs.core.ExceptionalHandler;
 import mb.xs.core.model.*;
@@ -14,6 +14,11 @@ public class ObjectValidator<T> extends SimpleValidator<T> {
 		super( type, value );
 	}
 
+	@Override
+	public ObjectValidator<T> is( Predicate<T> condition ) throws ValidationException {
+		super.is( condition );
+		return this;
+	}
 	@Override
 	public ObjectValidator<T> isNull() throws ValidationException {
 		super.isNull();

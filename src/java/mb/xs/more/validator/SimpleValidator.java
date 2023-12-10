@@ -1,6 +1,7 @@
 package mb.xs.more.validator;
 
 import java.util.Objects;
+import java.util.function.Predicate;
 
 import mb.xs.core.model.*;
 
@@ -25,6 +26,13 @@ public class SimpleValidator<T> implements Validator<T> {
 		return value;
 	}
 
+	@Override
+	public SimpleValidator<T> is( Predicate<T> condition ) throws ValidationException {
+		if( !condition.test( value ) ) {
+			throw new ValidationException( type, value, "Condition is not met: " + condition );
+		}
+		return this;
+	}
 	@Override
 	public SimpleValidator<T> isNull() throws ValidationException {
 		if( value != null ) {

@@ -1,6 +1,7 @@
 package mb.xs.more.validator;
 
 import java.util.Collection;
+import java.util.function.Predicate;
 
 import mb.xs.core.ExceptionalHandler;
 import mb.xs.core.model.*;
@@ -19,6 +20,11 @@ public class CollectionValidator<T> extends SimpleValidator<Collection<T>> {
 		return itemType;
 	}
 
+	@Override
+	public CollectionValidator<T> is( Predicate<Collection<T>> condition ) throws ValidationException {
+		super.is( condition );
+		return this;
+	}
 	@Override
 	public CollectionValidator<T> isNull() throws ValidationException {
 		super.isNull();
