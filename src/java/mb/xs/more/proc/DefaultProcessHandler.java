@@ -12,6 +12,8 @@ public class DefaultProcessHandler implements ExceptionalHandler<Process, Proces
 	private OutputHandler stdOutHandler;
 	private OutputHandler stdErrHandler;
 
+	private Process process;
+
 	public DefaultProcessHandler() {
 		this( new OutputLogger() );
 	}
@@ -36,8 +38,18 @@ public class DefaultProcessHandler implements ExceptionalHandler<Process, Proces
 		this.stdErrHandler = stdErrHandler;
 	}
 
+	public boolean isOperating() {
+		return process != null && process.isAlive();
+	}
+	public void kill() {
+		if( process != null && process.isAlive() ) {
+			process.destroyForcibly();
+		}
+	}
+
 	@Override
 	public void handle( Process process ) throws ProcessException {
+		this.process = process;
 		try {
 			while( process.isAlive() ) {
 				stdOutHandler.handle( process.getInputStream() );
@@ -70,7 +82,7 @@ public class DefaultProcessHandler implements ExceptionalHandler<Process, Proces
 			Thread.sleep( timeout );
 		} catch( InterruptedException e ) {
 			LOG.warn( e.getMessage(), e );
-//			Thread.currentThread().interrupt();
+			// Thread.currentThread().interrupt();
 		}
 	}
 }
