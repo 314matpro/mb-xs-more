@@ -43,7 +43,12 @@ public class DefaultProcessHandler implements ExceptionalHandler<Process, Proces
 	}
 	public void kill() {
 		if( process != null && process.isAlive() ) {
-			process.destroyForcibly();
+			process = process.destroyForcibly();
+			try {
+				process.waitFor();
+			} catch( InterruptedException e ) {
+				LOG.warn( e );
+			}
 		}
 	}
 
