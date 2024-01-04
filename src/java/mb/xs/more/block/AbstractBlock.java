@@ -191,7 +191,9 @@ public abstract class AbstractBlock implements Block {
 	}
 	@Override
 	public Block match( long index, Block... patterns ) {
-		LOG.trace( index, " at ", patterns );
+		if( LOG.isTraceEnabled() ) {
+			LOG.trace( index, " at ", Arrays.asList( patterns ) );
+		}
 		for( Block pattern : patterns ) {
 			if( pattern == null || pattern.isEmpty() ) {
 				throw new IllegalArgumentException( "All patterns must be present and contain data: " + Arrays.asList( patterns ) );

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import mb.xs.core.log.Log;
+import mb.xs.core.util.SleepUtil;
 import mb.xs.more.log.*;
 
 public class BlockInput implements BlockStream {
@@ -149,13 +150,12 @@ public class BlockInput implements BlockStream {
 
 	@Override
 	public Block getMatch( Block... patterns ) {
-		// buffer( left() );
-		// return bufferIter.getMatch( patterns );
-		return null;
+		readAtLeast( patterns );
+		return iter.getMatch( patterns );
 	}
 	@Override
 	public Block nextMatch( Block... patterns ) {
-		readData();
+		readAtLeast( patterns );
 		return iter.nextMatch( patterns );
 	}
 
@@ -172,34 +172,32 @@ public class BlockInput implements BlockStream {
 
 	@Override
 	public BlockMatchValue getUntil( Block... patterns ) {
-		readData();
+		readUntil( Long.MAX_VALUE, patterns );
 		return iter.getUntil( patterns );
 	}
 	@Override
 	public BlockMatchValue getUntil( long maxLength, Block... patterns ) {
-		readData();
+		readUntil( maxLength, patterns );
 		return iter.getUntil( maxLength, patterns );
 	}
 	@Override
 	public BlockMatchValue getUntilAfter( Block... patterns ) {
-		readData();
+		readUntil( Long.MAX_VALUE, patterns );
 		return iter.getUntilAfter( patterns );
 	}
 	@Override
 	public BlockMatchValue nextUntil( Block... patterns ) {
-		readData();
+		readUntil( Long.MAX_VALUE, patterns );
 		return iter.nextUntil( patterns );
 	}
 	@Override
 	public BlockMatchValue nextUntil( long maxLength, Block... patterns ) {
-		readData();
+		readUntil( maxLength, patterns );
 		return iter.nextUntil( maxLength, patterns );
 	}
 	@Override
 	public BlockMatchValue nextUntilAfter( Block... patterns ) {
-		while( iter.getUntil( patterns ).getMatch() == null ) {
-			readData( 1 );
-		}
+		readUntil( Long.MAX_VALUE, patterns );
 		return iter.nextUntilAfter( patterns );
 	}
 
@@ -243,17 +241,44 @@ public class BlockInput implements BlockStream {
 		}
 	}
 
+	private void readAtLeast( Block...patterns ) {
+		long max = getMaxLength( patterns );
+		for( int i = 1; iter.left() < max && !done && iter.getMatch( patterns ) == null; i++ ) {
+			readData( i );
+		}
+	}
+	private long getMaxLength( Block...blocks ) {
+		long max = -1;
+		for( Block pattern : blocks ) {
+			if( max < pattern.count() ) {
+				max = pattern.count();
+			}
+		}
+		return max;
+	}
+	private void readUntil( long max, Block... patterns ) {
+		for( int i = 1; iter.left() < max && !done && iter.getUntil( patterns ).getMatch() == null; i++ ) {
+			readData( i );
+		}
+	}
 	private void readData() {
 		readData( 0 );
 	}
 	private void readData( long required ) {
 		try {
+			LOG.trace( iter.left(), "/", required );
 			while( iter.left() < required ) {
 				int read = required > 0 || stream.available() > 0 ? stream.read( buffer ) : 0;
 				if( read > 0 ) {
 					block.add( buffer, 0, read );
 				} else if( read < 0 ) {
+					LOG.debug( "Reached end of input" );
 					done = true;
+				} else {
+					SleepUtil.ms( 10 );
+				}
+				if( LOG.isTraceEnabled() ) {
+					LOG.trace( iter.left(), "/", required, " done: ", done, ":...", iter.getUpTo( 32 ) );
 				}
 			}
 		} catch( IOException e ) {
