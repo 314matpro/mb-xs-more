@@ -211,17 +211,18 @@ public class FileUtil {
 		}
 		file.delete();
 	}
-	public static void makePath( File directory ) {
+	public static File makePath( File directory ) {
 		if( !directory.exists() && !directory.mkdirs() ) {
 			throw new IllegalStateException( "Failed creating path: " + directory );
 		}
+		return directory;
 	}
-	public static void makeParent( File file ) {
+	public static File makeParent( File file ) {
 		if( file.getParentFile() != null ) {
-			makePath( file.getParentFile() );
+			return makePath( file.getParentFile() );
 		} else {
 			try {
-				makePath( file.getCanonicalFile().getParentFile() );
+				return makePath( file.getCanonicalFile().getParentFile() );
 			} catch( IOException e ) {
 				throw new IllegalStateException( "Failed creating parent of: " + file );
 			}
